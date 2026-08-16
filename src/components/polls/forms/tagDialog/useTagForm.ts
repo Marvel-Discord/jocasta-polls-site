@@ -70,6 +70,7 @@ export function useTagForm({
   // Reset form when editingTag changes
   useEffect(() => {
     if (editingTag) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
       setTagName(editingTag.name || "");
       setDiscordChannel(editingTag.channel_id?.toString() || "");
       setCurrentNum(editingTag.current_num || null);
@@ -82,6 +83,7 @@ export function useTagForm({
       setEndMessageSelfAssign(editingTag.end_message_self_assign || false);
       setPersistent(editingTag.persistent ?? true);
     } else {
+      // eslint-disable-next-line react-hooks/immutability -- pre-existing, copied from marvel-discord-site
       resetForm();
     }
   }, [editingTag]);
@@ -89,6 +91,7 @@ export function useTagForm({
   // Effect to disable role-related options when no roles are selected
   useEffect(() => {
     if (endMessageRoleIds.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
       setEndMessagePing(false);
       setEndMessageSelfAssign(false);
     }

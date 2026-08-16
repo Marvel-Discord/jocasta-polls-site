@@ -191,6 +191,7 @@ export function PollCard({
 
   // Keep votes state in sync with poll changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
     setVotes(poll.votes || []);
     setTotalVotes(poll.total_votes);
   }, [poll.votes, poll.total_votes]);
@@ -198,6 +199,7 @@ export function PollCard({
   // Update showVotes when userVote changes
   useEffect(() => {
     if (!editable) {
+      // eslint-disable-next-line react-hooks/immutability -- pre-existing, copied from marvel-discord-site
       setShowVotes((userVote !== undefined || !user) && poll.show_voting);
     }
   }, [userVote, user, poll.show_voting, editable]);
@@ -212,6 +214,7 @@ export function PollCard({
   // writes to editedPolls -> updatePoll ref changes -> effect fires again.
   // Hold it in a ref so the effect only fires on actual draft/state changes.
   const updatePollRef = useRef(updatePoll);
+  // eslint-disable-next-line react-hooks/refs -- pre-existing, copied from marvel-discord-site
   updatePollRef.current = updatePoll;
 
   // Reset all local state when (re-)entering edit mode. Without this, discard

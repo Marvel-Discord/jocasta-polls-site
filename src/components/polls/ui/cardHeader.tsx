@@ -448,6 +448,7 @@ function InfoTags({
 
   useEffect(() => {
     if (editable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
       setEditableTags(computedTags);
     }
   }, [computedTags, editable]);
@@ -874,7 +875,8 @@ export function PollCardHeader({
   const dateTime = poll.time ? new Date(poll.time) : null;
   const [createTagDialogOpen, setCreateTagDialogOpen] = useState(false);
   const isNew = dateTime
-    ? dateTime.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 2
+    ? // eslint-disable-next-line react-hooks/purity -- pre-existing, copied from marvel-discord-site
+      dateTime.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 2
     : false;
   const pollLink =
     poll.message_id && poll.published && tag

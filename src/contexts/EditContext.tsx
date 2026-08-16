@@ -246,7 +246,6 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       const pollsToCreate = editedPolls
         .filter((ep) => ep.state === EditState.CREATE)
         .map((ep) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...pollWithoutId } = ep.poll;
 
           // Update tag ID if it was a newly created tag
@@ -326,6 +325,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
   // Reset edit state when disabled
   useEffect(() => {
     if (!editModeEnabled) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
       setEditedPolls([]);
       setValidationResult({ isValid: true, errors: new Map() });
     }
@@ -334,6 +334,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
   // Validate polls when entering edit mode
   useEffect(() => {
     if (editModeEnabled) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
       validateCurrentPolls();
     }
   }, [editModeEnabled, validateCurrentPolls]);

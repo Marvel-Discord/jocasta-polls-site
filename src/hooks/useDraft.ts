@@ -40,6 +40,7 @@ export function useDraft<T>(
   }, []);
 
   const dirty = useMemo(
+    // eslint-disable-next-line react-hooks/refs -- pre-existing, copied from marvel-discord-site
     () => !equal(draft, initialRef.current),
     [draft, equal]
   );

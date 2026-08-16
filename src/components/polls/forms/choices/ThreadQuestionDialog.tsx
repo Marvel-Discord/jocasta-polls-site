@@ -101,6 +101,7 @@ export function ThreadQuestionDialog({
   // Update isDefault when threadQuestion changes to "def"
   useEffect(() => {
     if (threadQuestion.toLowerCase() === "def" && !isDefault) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
       setIsDefault(true);
     }
   }, [threadQuestion, isDefault]);

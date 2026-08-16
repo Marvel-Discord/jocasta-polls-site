@@ -52,14 +52,14 @@ export function useChoicesManager({
     setChoices(newChoices);
   }
 
-  const isFirstRender = useFirstRenderResetOnCondition(editable);
+  const isFirstRenderRef = useFirstRenderResetOnCondition(editable);
   const prevChoicesRef = useRef<string[]>([]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: handleChoicesChange is from parent component, isFirstRender is a ref
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleChoicesChange is from parent component, isFirstRenderRef is a ref
   useEffect(() => {
     if (editable) {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
+      if (isFirstRenderRef.current) {
+        isFirstRenderRef.current = false;
         prevChoicesRef.current = choices.filter(
           (choice) => choice.trim() !== ""
         );

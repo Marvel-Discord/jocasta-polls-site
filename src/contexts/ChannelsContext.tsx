@@ -30,6 +30,7 @@ export function ChannelsProvider({
   const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
     setLoading(true);
     getGuildChannels(guildId)
       .then((chs) => {

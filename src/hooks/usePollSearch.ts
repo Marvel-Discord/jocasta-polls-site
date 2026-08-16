@@ -120,6 +120,7 @@ export function usePollSearch() {
   // Sync with context when it changes
   useEffect(() => {
     if (pollsContext._triggerSearch) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing, copied from marvel-discord-site
       setSearchValue(pollsContext.searchValue);
       setSearchType(pollsContext.searchType);
       handleSearch(pollsContext.searchValue, pollsContext.searchType);

@@ -139,6 +139,7 @@ export default function DatePickerComponent({
 
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZoneName: "short",
+    // eslint-disable-next-line react-hooks/purity -- pre-existing, copied from marvel-discord-site
   }).formatToParts(new Date(selected ?? Date.now()));
 
   const timeZone = parts.find((part) => part.type === "timeZoneName")?.value;
