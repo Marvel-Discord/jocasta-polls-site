@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { relativeImagePathToAbsolute } from "@/utils";
 
 export const pollsMetadata: Metadata = {
@@ -20,4 +20,8 @@ export const pollsMetadata: Metadata = {
       ),
     ],
   },
+};
+
+export const pollsViewport: Viewport = {
+  themeColor: "#ea2328",
 };

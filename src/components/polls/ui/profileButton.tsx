@@ -62,15 +62,15 @@ function ProfileCard({ router }: { router: AppRouterInstance }) {
 
   const handleLogout = async () => {
     await signOut().then(() => {
-      router.push("/polls");
+      router.push("/");
     });
   };
 
   const handleMyContributions = () => {
     if (setSearchToUser && user?.username) {
       // First navigate to polls page if not already there
-      if (window.location.pathname !== "/polls") {
-        router.push("/polls");
+      if (window.location.pathname !== "/") {
+        router.push("/");
         // Set search after navigation
         setTimeout(() => {
           setSearchToUser(user.username);

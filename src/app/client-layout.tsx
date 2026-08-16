@@ -9,7 +9,7 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import ProfileContainer from "@/components/polls/ui/profileButton";
 import { TagProvider } from "@/contexts/TagContext";
 import { PollsSearchProvider } from "@/contexts/SearchContext";
-import config from "../config/config";
+import config from "./config/config";
 
 import "@radix-ui/themes/styles.css";
 import "./polls-globals.css";
