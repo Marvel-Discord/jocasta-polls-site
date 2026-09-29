@@ -21,9 +21,9 @@ export const postVote = async (
   pollId: number,
   userId: string,
   choiceId?: number
-) => {
+): Promise<{ message: string }> => {
   try {
-    const response: AxiosResponse<Vote> = await axiosPollsInstance.post(
+    const response = await axiosPollsInstance.post(
       `/polls/${pollId}/vote`,
       { choice: choiceId ?? null, userId }
     );
