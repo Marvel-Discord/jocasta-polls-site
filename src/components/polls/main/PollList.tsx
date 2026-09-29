@@ -1,6 +1,6 @@
 import React from "react";
 import { Flex } from "@radix-ui/themes";
-import { PollSearchType } from "@/utils";
+import { PollSearchType, createLogger } from "@/utils";
 import { useTagContext } from "@/contexts/TagContext";
 import { usePollDataContext } from "@/contexts/PollDataProvider";
 import { useEditContext } from "@/contexts/EditContext";
@@ -9,6 +9,9 @@ import { NewPollButton, PollCard } from "./poll";
 import InfiniteScroll from "react-infinite-scroll-component";
 import styled from "styled-components";
 import type { Poll, Meta } from "@/types/jocasta";
+import config from "@/app/config/config";
+
+const logger = createLogger("PollList");
 
 const FullWidthScroll = styled.div`
   width: 100%;
@@ -106,8 +109,11 @@ export function PollList({
                         if (p.tag !== undefined) created.tag = p.tag as number;
                         if (p.thread_question !== undefined)
                           created.thread_question = p.thread_question ?? "";
-                        if (p.guild_id !== undefined)
-                          created.guild_id = p.guild_id as unknown as bigint;
+                        if (p.guild_id !== undefined && p.guild_id.toString() !== config.guildId)
+                          logger.warn(
+                            "Clipboard import guild_id mismatch — using configured guild_id:",
+                            { imported: p.guild_id, configured: config.guildId }
+                          );
 
                         // Mark the created poll as edited so the system sees the
                         // delta between the empty baseline and the populated values.

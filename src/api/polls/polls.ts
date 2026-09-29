@@ -2,7 +2,7 @@ import type { Meta, Poll } from "@/types/jocasta";
 import { axiosPollsInstance } from "../axios";
 import type { AxiosResponse } from "axios";
 import config from "@/app/config/config";
-import { serializePollsForAPI } from "@/utils";
+import { serializeBigIntFields } from "@/utils";
 import { createLogger } from "@/utils/logger";
 
 const logger = createLogger("api/polls");
@@ -81,17 +81,58 @@ export const getPollById = async (pollId: string): Promise<Poll> => {
 };
 
 /**
+ * Whitelist pick of editable fields for POST /polls/update.
+ * The API enforces a strict field matrix (assertNoRestrictedUpdateFields):
+ * sending `published`, `guild_id`, `num`, `message_id`,
+ * `crosspost_message_ids`, or `fallback` → 400. This pick approach is
+ * immune to future schema drift and avoids the time/start_time conflict
+ * (the API serializer returns both; we send only `time`).
+ */
+export const toUpdatePayload = (poll: Poll) => ({
+  id: poll.id,
+  question: poll.question,
+  description: poll.description,
+  image: poll.image,
+  thread_question: poll.thread_question,
+  choices: poll.choices,
+  tag: poll.tag,
+  time: poll.time instanceof Date ? poll.time.toISOString() : poll.time,
+  show_question: poll.show_question,
+  show_options: poll.show_options,
+  show_voting: poll.show_voting,
+});
+
+/**
+ * Whitelist pick of creatable fields for POST /polls/create.
+ * The API tolerates extra fields today (strips server-side) but the
+ * documented intent is fail-safe-against-drift; sending only what the
+ * endpoint accepts is future-proof.
+ */
+export const toCreatePayload = (poll: Omit<Poll, "id">) => ({
+  question: poll.question,
+  choices: poll.choices,
+  tag: poll.tag,
+  guild_id: poll.guild_id,
+  time: poll.time instanceof Date ? poll.time.toISOString() : poll.time,
+  image: poll.image,
+  description: poll.description,
+  thread_question: poll.thread_question,
+  show_question: poll.show_question,
+  show_options: poll.show_options,
+  show_voting: poll.show_voting,
+});
+
+/**
  * Create new polls
  */
 export const createPolls = async (
   polls: Omit<Poll, "id">[]
 ): Promise<Poll[]> => {
   try {
-    // Serialize BigInt fields and Date objects for JSON compatibility
-    const serializedPolls = serializePollsForAPI(polls);
-    const response: AxiosResponse<{ data: Poll[] }> =
-      await axiosPollsInstance.post("/polls/create", serializedPolls);
-    return response.data.data;
+    const payload = polls.map((poll) => serializeBigIntFields(toCreatePayload(poll)));
+    const response: AxiosResponse<{ message: string; polls: Poll[] }> =
+      await axiosPollsInstance.post("/polls/create", payload);
+    return response.data.polls;
   } catch (error) {
     logger.error("Error creating polls:", error);
     throw error;
@@ -103,11 +144,10 @@ export const createPolls = async (
  */
 export const updatePolls = async (polls: Poll[]): Promise<Poll[]> => {
   try {
-    // Serialize BigInt fields and Date objects for JSON compatibility
-    const serializedPolls = serializePollsForAPI(polls);
-    const response: AxiosResponse<{ data: Poll[] }> =
-      await axiosPollsInstance.post("/polls/update", serializedPolls);
-    return response.data.data;
+    const payload = polls.map((poll) => serializeBigIntFields(toUpdatePayload(poll)));
+    const response: AxiosResponse<{ message: string; polls: Poll[] }> =
+      await axiosPollsInstance.post("/polls/update", payload);
+    return response.data.polls;
   } catch (error) {
     logger.error("Error updating polls:", error);
     throw error;
