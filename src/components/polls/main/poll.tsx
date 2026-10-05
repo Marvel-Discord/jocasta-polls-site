@@ -356,6 +356,13 @@ export function PollCard({
     [setField]
   );
 
+  const handleEndTimeChange = useCallback(
+    (newEndDateTime: Poll["end_time"]) => {
+      setField("end_time", newEndDateTime);
+    },
+    [setField]
+  );
+
   const handleThreadQuestionChange = useCallback(
     (newThreadQuestion: string) => {
       setThreadQuestion(newThreadQuestion);
@@ -393,13 +400,19 @@ export function PollCard({
       $state={state}
     >
       <PollCardHeader
-        poll={{ ...poll, total_votes: totalVotes, time: draft.time }}
+        poll={{
+          ...poll,
+          total_votes: totalVotes,
+          time: draft.time,
+          end_time: draft.end_time,
+        }}
         tag={editable ? currentTag : tag}
         setTag={editable ? handleTagChange : undefined}
         guild={guild}
         votes={votes}
         editable={editable}
         handleTimeChange={editable ? handleTimeChange : undefined}
+        handleEndTimeChange={editable ? handleEndTimeChange : undefined}
         description={descriptionAdditionalText}
         handleDescriptionChange={
           editable ? handleDescriptionAdditionalChange : undefined

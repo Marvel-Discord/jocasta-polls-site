@@ -131,9 +131,11 @@ function isToday(date: Date) {
 export default function DatePickerComponent({
   selected,
   onChange,
+  clearable = false,
 }: {
   selected: Date | null;
   onChange: (date: Date | null) => void;
+  clearable?: boolean;
 }) {
   const isMobile = useIsMobile();
 
@@ -161,6 +163,7 @@ export default function DatePickerComponent({
           placeholderText="Select a date"
           selected={selected ?? undefined}
           showTimeInput
+          isClearable={clearable}
           $isMobile={isMobile}
         />
       </DatePickerWrapper>
