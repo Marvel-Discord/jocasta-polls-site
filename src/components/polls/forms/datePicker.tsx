@@ -26,6 +26,21 @@ const DatePickerWrapper = styled.div`
   justify-content: center;
   overflow: visible;
 
+  .react-datepicker__close-icon {
+    &::after {
+      background-color: transparent;
+      color: var(--gray-10);
+      font-size: 1rem;
+      height: auto;
+      width: auto;
+      padding: 0;
+    }
+
+    &:hover::after {
+      color: var(--gray-12);
+    }
+  }
+
   .react-datepicker-popper {
     .react-datepicker {
       background-color: var(--color-background);

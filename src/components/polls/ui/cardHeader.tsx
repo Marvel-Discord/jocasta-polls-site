@@ -24,7 +24,8 @@ import {
 } from "@radix-ui/themes";
 import {
   Calendar,
-  CalendarClock,
+  CalendarPlus,
+  CalendarX2,
   ExternalLink,
   Info,
   type LucideProps,
@@ -302,8 +303,8 @@ enum InfoTagType {
 const InfoTagIconMap: Record<InfoTagType, React.ReactNode> = {
   [InfoTagType.ARTIST]: <Palette />,
   [InfoTagType.AUTHOR]: <PencilLine />,
-  [InfoTagType.DATE]: <Calendar />,
-  [InfoTagType.END_DATE]: <CalendarClock />,
+  [InfoTagType.DATE]: <CalendarPlus />,
+  [InfoTagType.END_DATE]: <CalendarX2 />,
   [InfoTagType.ID]: <Hash />,
   [InfoTagType.TAG]: <LucideTag />,
   [InfoTagType.VOTES]: <Vote />,
@@ -404,7 +405,9 @@ function InfoTags({
       id: "date",
       type: InfoTagType.DATE,
       editable: false,
-      text: dateTime ? formatPollDateShort(dateTime, isMobile) : "No date set.",
+      text: dateTime
+        ? `Starts ${formatPollDateShort(dateTime, isMobile)}`
+        : "No date set.",
       tooltip: dateTime ? formatPollDateFull(dateTime) : "No date set.",
       node:
         editable && !poll.published ? (
@@ -420,7 +423,7 @@ function InfoTags({
       type: InfoTagType.END_DATE,
       editable: false,
       text: endDateTime
-        ? formatPollDateShort(endDateTime, isMobile)
+        ? `Ends ${formatPollDateShort(endDateTime, isMobile)}`
         : "No end date set.",
       tooltip: endDateTime
         ? formatPollDateFull(endDateTime)
