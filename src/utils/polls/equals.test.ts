@@ -155,4 +155,36 @@ describe("pollFieldsEqual", () => {
     const b = basePoll({ description: "Best hero?\nArt by Bar." });
     expect(pollFieldsEqual(a, b)).toBe(false);
   });
+
+  it("end_time: returns true for same instant with different Date references", () => {
+    const t = "2026-08-05T12:00:00Z";
+    const a = basePoll({ end_time: new Date(t) });
+    const b = basePoll({ end_time: new Date(t) });
+    expect(pollFieldsEqual(a, b)).toBe(true);
+  });
+
+  it("end_time: returns false when instants differ", () => {
+    const a = basePoll({ end_time: new Date("2026-08-05T12:00:00Z") });
+    const b = basePoll({ end_time: new Date("2026-08-06T12:00:00Z") });
+    expect(pollFieldsEqual(a, b)).toBe(false);
+  });
+
+  it("end_time: returns false when one is null and the other is set", () => {
+    const a = basePoll({ end_time: null });
+    const b = basePoll({ end_time: new Date("2026-08-05T12:00:00Z") });
+    expect(pollFieldsEqual(a, b)).toBe(false);
+    expect(pollFieldsEqual(b, a)).toBe(false);
+  });
+
+  it("end_time: returns true when both are null", () => {
+    const a = basePoll({ end_time: null });
+    const b = basePoll({ end_time: null });
+    expect(pollFieldsEqual(a, b)).toBe(true);
+  });
+
+  it("end_time: compares ISO string (API reality) to Date of the same instant", () => {
+    const a = basePoll({ end_time: "2026-08-05T12:00:00Z" as unknown as Date });
+    const b = basePoll({ end_time: new Date("2026-08-05T12:00:00.000Z") });
+    expect(pollFieldsEqual(a, b)).toBe(true);
+  });
 });

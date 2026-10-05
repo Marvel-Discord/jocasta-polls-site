@@ -36,6 +36,7 @@ export function pollFieldsEqual(a: Poll, b: Poll): boolean {
     a.tag === b.tag &&
     arraysEqual(a.choices, b.choices) &&
     datesEqual(a.time, b.time) &&
+    datesEqual(a.end_time, b.end_time) &&
     (a.thread_question ?? "") === (b.thread_question ?? "")
   );
 }
