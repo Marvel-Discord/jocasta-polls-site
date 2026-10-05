@@ -283,6 +283,7 @@ interface InfoTag {
   text: string;
   additionalContent?: Record<string, string>;
   type: InfoTagType;
+  icon?: React.ReactNode;
   node?: React.ReactNode;
   tooltip?: string;
   mobileOnly?: boolean;
@@ -303,7 +304,7 @@ enum InfoTagType {
 const InfoTagIconMap: Record<InfoTagType, React.ReactNode> = {
   [InfoTagType.ARTIST]: <Palette />,
   [InfoTagType.AUTHOR]: <PencilLine />,
-  [InfoTagType.DATE]: <CalendarPlus />,
+  [InfoTagType.DATE]: <Calendar />,
   [InfoTagType.END_DATE]: <CalendarX2 />,
   [InfoTagType.ID]: <Hash />,
   [InfoTagType.TAG]: <LucideTag />,
@@ -330,7 +331,7 @@ function renderTagContent(tag: InfoTag, isMobile: boolean) {
   if (!shouldRender) return null;
 
   const content = (
-    <HeaderText icon={InfoTagIconMap[tag.type]}>
+    <HeaderText icon={tag.icon ?? InfoTagIconMap[tag.type]}>
       {tag.node ?? tag.text}
     </HeaderText>
   );
@@ -405,8 +406,9 @@ function InfoTags({
       id: "date",
       type: InfoTagType.DATE,
       editable: false,
+      icon: editable ? <CalendarPlus /> : <Calendar />,
       text: dateTime
-        ? `Starts ${formatPollDateShort(dateTime, isMobile)}`
+        ? `${editable ? "Starts " : ""}${formatPollDateShort(dateTime, isMobile)}`
         : "No date set.",
       tooltip: dateTime ? formatPollDateFull(dateTime) : "No date set.",
       node:
@@ -447,7 +449,7 @@ function InfoTags({
         editable: false,
       },
       dateTag,
-      ...(endDateTime || editable ? [endDateTag] : []),
+      ...(editable ? [endDateTag] : []),
       ...(totalVotes !== undefined
         ? [
             {
@@ -671,7 +673,7 @@ function InfoTagDialog({
             if (tag.mobileOnly && !mobile) return null;
             if (!mobile && editable && !tag.editable) return null;
 
-            const icon = InfoTagIconMap[tag.type];
+            const icon = tag.icon ?? InfoTagIconMap[tag.type];
             const styledIcon = isValidElement(icon)
               ? cloneElement(icon as ReactElement<LucideProps>, {
                   size: 26,
