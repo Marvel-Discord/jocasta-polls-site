@@ -416,6 +416,7 @@ function InfoTags({
           <DatePickerComponent
             selected={dateTime}
             onChange={(date) => setDateTime(date)}
+            clearable
           />
         ) : undefined,
     };
