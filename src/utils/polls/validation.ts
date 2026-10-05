@@ -66,6 +66,20 @@ export function validatePoll(
     errors.push("A tag must be selected");
   }
 
+  // Mirror the API's DB constraints:
+  //   end_time IS NULL OR start_time IS NOT NULL
+  //   start_time < end_time
+  // `time`/`end_time` arrive as Date or ISO string at runtime.
+  if (poll.end_time != null) {
+    const startTime = poll.time != null ? new Date(poll.time).getTime() : null;
+    const endTime = new Date(poll.end_time).getTime();
+    if (startTime === null) {
+      errors.push("End time requires a start date");
+    } else if (endTime <= startTime) {
+      errors.push("End time must be after the start date");
+    }
+  }
+
   return {
     isValid: errors.length === 0,
     errors: new Map([[poll, errors]]),
