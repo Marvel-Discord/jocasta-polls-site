@@ -13,6 +13,7 @@ function basePoll(overrides: Partial<Poll> = {}): Poll {
     votes: [],
     total_votes: 0,
     time: new Date("2026-08-01T12:00:00Z"),
+    end_time: null,
     num: null,
     message_id: null,
     crosspost_message_ids: [],
