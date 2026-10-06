@@ -275,7 +275,11 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       }
 
       if (pollsToUpdate.length > 0) {
-        promises.push(updatePolls(pollsToUpdate));
+        // Pass the pre-edit originals so unchanged-null end_times are
+        // omitted from the payload (a bot-side /end between fetch and
+        // save must not be cleared by a stale null).
+        const originalsById = new Map(polls.map((p) => [p.id, p]));
+        promises.push(updatePolls(pollsToUpdate, originalsById));
       }
 
       if (pollsToDelete.length > 0) {

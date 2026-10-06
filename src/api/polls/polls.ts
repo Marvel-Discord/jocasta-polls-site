@@ -87,8 +87,13 @@ export const getPollById = async (pollId: string): Promise<Poll> => {
  * `crosspost_message_ids`, or `fallback` → 400. This pick approach is
  * immune to future schema drift and avoids the time/start_time conflict
  * (the API serializer returns both; we send only `time` and `end_time`).
+ *
+ * `end_time` is delta-omitted: when neither the draft nor the original
+ * poll has one, the key is left out entirely so a bot-side `/end` that
+ * lands between fetch and save isn't clobbered by a stale null. It is
+ * still sent when clearing (original had one, draft doesn't).
  */
-export const toUpdatePayload = (poll: Poll) => ({
+export const toUpdatePayload = (poll: Poll, originalPoll?: Poll) => ({
   id: poll.id,
   question: poll.question,
   description: poll.description,
@@ -97,8 +102,14 @@ export const toUpdatePayload = (poll: Poll) => ({
   choices: poll.choices,
   tag: poll.tag,
   time: poll.time instanceof Date ? poll.time.toISOString() : poll.time,
-  end_time:
-    poll.end_time instanceof Date ? poll.end_time.toISOString() : poll.end_time,
+  ...(poll.end_time != null || originalPoll?.end_time != null
+    ? {
+        end_time:
+          poll.end_time instanceof Date
+            ? poll.end_time.toISOString()
+            : poll.end_time,
+      }
+    : {}),
   show_question: poll.show_question,
   show_options: poll.show_options,
   show_voting: poll.show_voting,
@@ -145,10 +156,20 @@ export const createPolls = async (
 
 /**
  * Update existing polls
+ *
+ * `originalPollsById` enables the end_time delta omission in
+ * `toUpdatePayload` (see its doc comment).
  */
-export const updatePolls = async (polls: Poll[]): Promise<Poll[]> => {
+export const updatePolls = async (
+  polls: Poll[],
+  originalPollsById?: Map<number, Poll>
+): Promise<Poll[]> => {
   try {
-    const payload = polls.map((poll) => serializeBigIntFields(toUpdatePayload(poll)));
+    const payload = polls.map((poll) =>
+      serializeBigIntFields(
+        toUpdatePayload(poll, originalPollsById?.get(poll.id))
+      )
+    );
     const response: AxiosResponse<{ message: string; polls: Poll[] }> =
       await axiosPollsInstance.post("/polls/update", payload);
     return response.data.polls;

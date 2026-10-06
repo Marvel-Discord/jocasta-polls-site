@@ -71,12 +71,16 @@ export function validatePoll(
   //   start_time < end_time
   // `time`/`end_time` arrive as Date or ISO string at runtime.
   if (poll.end_time != null) {
-    const startTime = poll.time != null ? new Date(poll.time).getTime() : null;
     const endTime = new Date(poll.end_time).getTime();
-    if (startTime === null) {
-      errors.push("End time requires a start date");
-    } else if (endTime <= startTime) {
-      errors.push("End time must be after the start date");
+    if (!Number.isFinite(endTime)) {
+      errors.push("End time is invalid");
+    } else {
+      const startTime = poll.time != null ? new Date(poll.time).getTime() : null;
+      if (startTime === null || !Number.isFinite(startTime)) {
+        errors.push("End time requires a start date");
+      } else if (endTime <= startTime) {
+        errors.push("End time must be after the start date");
+      }
     }
   }
 

@@ -436,6 +436,9 @@ function InfoTags({
           selected={endDateTime}
           onChange={(date) => setEndDateTime(date)}
           clearable
+          minDate={
+            dateTime && dateTime > new Date() ? dateTime : undefined
+          }
         />
       ) : undefined,
     };
