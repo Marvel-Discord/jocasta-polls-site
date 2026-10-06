@@ -147,10 +147,12 @@ export default function DatePickerComponent({
   selected,
   onChange,
   clearable = false,
+  minDate,
 }: {
   selected: Date | null;
   onChange: (date: Date | null) => void;
   clearable?: boolean;
+  minDate?: Date;
 }) {
   const isMobile = useIsMobile();
 
@@ -168,7 +170,7 @@ export default function DatePickerComponent({
           dateFormat={
             !isMobile ? "MMMM d, yyyy, h:mm aa" : "dd/MM/yyyy h:mm aa"
           }
-          minDate={new Date()}
+          minDate={minDate ?? new Date()}
           minTime={
             selected && isToday(selected)
               ? new Date()
