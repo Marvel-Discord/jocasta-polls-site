@@ -81,4 +81,26 @@ describe("validatePoll end_time", () => {
     });
     expect(validatePoll(poll).isValid).toBe(true);
   });
+
+  it("invalid when end_time is an unparseable string (NaN guard)", () => {
+    const poll = basePoll({
+      time: new Date("2026-08-01T12:00:00Z"),
+      end_time: "not a date" as unknown as Date,
+    });
+    const result = validatePoll(poll);
+    expect(result.isValid).toBe(false);
+    expect(result.errors.get(poll)).toContain("End time is invalid");
+  });
+
+  it("end time with an unparseable start reports the start-date error", () => {
+    const poll = basePoll({
+      time: "garbage" as unknown as Date,
+      end_time: new Date("2026-08-02T12:00:00Z"),
+    });
+    const result = validatePoll(poll);
+    expect(result.isValid).toBe(false);
+    expect(result.errors.get(poll)).toContain(
+      "End time requires a start date"
+    );
+  });
 });
