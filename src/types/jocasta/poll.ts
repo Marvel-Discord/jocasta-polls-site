@@ -8,6 +8,7 @@ export interface Poll {
   votes?: number[] | null;
   total_votes: number;
   time: Date | null;
+  end_time: Date | null;
   num: number | null;
   message_id: bigint | null;
   crosspost_message_ids: bigint[];

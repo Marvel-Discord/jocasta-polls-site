@@ -86,7 +86,7 @@ export const getPollById = async (pollId: string): Promise<Poll> => {
  * sending `published`, `guild_id`, `num`, `message_id`,
  * `crosspost_message_ids`, or `fallback` → 400. This pick approach is
  * immune to future schema drift and avoids the time/start_time conflict
- * (the API serializer returns both; we send only `time`).
+ * (the API serializer returns both; we send only `time` and `end_time`).
  */
 export const toUpdatePayload = (poll: Poll) => ({
   id: poll.id,
@@ -97,6 +97,8 @@ export const toUpdatePayload = (poll: Poll) => ({
   choices: poll.choices,
   tag: poll.tag,
   time: poll.time instanceof Date ? poll.time.toISOString() : poll.time,
+  end_time:
+    poll.end_time instanceof Date ? poll.end_time.toISOString() : poll.end_time,
   show_question: poll.show_question,
   show_options: poll.show_options,
   show_voting: poll.show_voting,
@@ -114,6 +116,8 @@ export const toCreatePayload = (poll: Omit<Poll, "id">) => ({
   tag: poll.tag,
   guild_id: poll.guild_id,
   time: poll.time instanceof Date ? poll.time.toISOString() : poll.time,
+  end_time:
+    poll.end_time instanceof Date ? poll.end_time.toISOString() : poll.end_time,
   image: poll.image,
   description: poll.description,
   thread_question: poll.thread_question,

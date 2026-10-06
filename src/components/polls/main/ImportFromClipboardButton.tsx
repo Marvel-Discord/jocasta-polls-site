@@ -101,6 +101,23 @@ export default function ImportFromClipboardButton({
   );
 }
 
+function parseClipboardDate(
+  value: unknown,
+  idx: number,
+  field: string,
+  errors: string[]
+): Date | undefined {
+  if (value == null) return undefined;
+  if (typeof value === "string" || typeof value === "number") {
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) return d;
+  } else if (value instanceof Date) {
+    return value;
+  }
+  errors.push(`item ${idx + 1}: invalid ${field}`);
+  return undefined;
+}
+
 // Parser for clipboard poll data. Returns parsed polls and an array of error messages.
 export function parsePollsFromClipboard(
   input: string,
@@ -226,23 +243,9 @@ export function parsePollsFromClipboard(
       if (c.length > 0) choices = c;
     }
 
-    // time (optional ISO string or Date)
-    let time: Date | undefined = undefined;
-    if (obj.time != null) {
-      if (typeof obj.time === "string") {
-        const d = new Date(obj.time);
-        if (!isNaN(d.getTime())) time = d;
-        else errors.push(`item ${idx + 1}: invalid time`);
-      } else if (typeof obj.time === "number") {
-        const d = new Date(obj.time);
-        if (!isNaN(d.getTime())) time = d;
-        else errors.push(`item ${idx + 1}: invalid time`);
-      } else if (obj.time instanceof Date) {
-        time = obj.time as Date;
-      } else {
-        errors.push(`item ${idx + 1}: invalid time`);
-      }
-    }
+    // time / end_time (optional ISO string, epoch number, or Date)
+    const time = parseClipboardDate(obj.time, idx, "time", errors);
+    const end_time = parseClipboardDate(obj.end_time, idx, "end_time", errors);
 
     // tag (optional number)
     let tag: number | undefined = undefined;
@@ -272,6 +275,7 @@ export function parsePollsFromClipboard(
       guild_id: guild_id as unknown as Poll["guild_id"],
       choices: choices as unknown as Poll["choices"],
       time: time,
+      end_time: end_time,
       tag: tag as unknown as Poll["tag"],
       image: image as unknown as Poll["image"],
       description: description as unknown as Poll["description"],

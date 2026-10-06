@@ -24,6 +24,8 @@ import {
 } from "@radix-ui/themes";
 import {
   Calendar,
+  CalendarPlus,
+  CalendarX2,
   ExternalLink,
   Info,
   type LucideProps,
@@ -258,10 +260,30 @@ function PollArtistData(description: string | null): InfoTag[] {
   }));
 }
 
+function formatPollDateShort(date: Date, isMobile: boolean): string {
+  return date.toLocaleDateString("en-US", {
+    day: isMobile ? "2-digit" : "numeric",
+    month: isMobile ? "2-digit" : "long",
+    year: isMobile ? "2-digit" : "numeric",
+  });
+}
+
+function formatPollDateFull(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    minute: "2-digit",
+    hour: "2-digit",
+    timeZoneName: "short",
+  });
+}
+
 interface InfoTag {
   text: string;
   additionalContent?: Record<string, string>;
   type: InfoTagType;
+  icon?: React.ReactNode;
   node?: React.ReactNode;
   tooltip?: string;
   mobileOnly?: boolean;
@@ -273,6 +295,7 @@ enum InfoTagType {
   ARTIST = "artist",
   AUTHOR = "author",
   DATE = "date",
+  END_DATE = "end_date",
   ID = "id",
   TAG = "tag",
   VOTES = "votes",
@@ -282,6 +305,7 @@ const InfoTagIconMap: Record<InfoTagType, React.ReactNode> = {
   [InfoTagType.ARTIST]: <Palette />,
   [InfoTagType.AUTHOR]: <PencilLine />,
   [InfoTagType.DATE]: <Calendar />,
+  [InfoTagType.END_DATE]: <CalendarX2 />,
   [InfoTagType.ID]: <Hash />,
   [InfoTagType.TAG]: <LucideTag />,
   [InfoTagType.VOTES]: <Vote />,
@@ -290,6 +314,7 @@ const InfoTagIconMap: Record<InfoTagType, React.ReactNode> = {
 const InfoTagTypeOrder: InfoTagType[] = [
   InfoTagType.TAG,
   InfoTagType.DATE,
+  InfoTagType.END_DATE,
   InfoTagType.VOTES,
   InfoTagType.ARTIST,
   InfoTagType.AUTHOR,
@@ -298,12 +323,15 @@ const InfoTagTypeOrder: InfoTagType[] = [
 
 function renderTagContent(tag: InfoTag, isMobile: boolean) {
   const shouldRender =
-    tag.mobileOnly !== true && (!isMobile || tag.type === InfoTagType.DATE);
+    tag.mobileOnly !== true &&
+    (!isMobile ||
+      tag.type === InfoTagType.DATE ||
+      tag.type === InfoTagType.END_DATE);
 
   if (!shouldRender) return null;
 
   const content = (
-    <HeaderText icon={InfoTagIconMap[tag.type]}>
+    <HeaderText icon={tag.icon ?? InfoTagIconMap[tag.type]}>
       {tag.node ?? tag.text}
     </HeaderText>
   );
@@ -356,6 +384,8 @@ function InfoTags({
   editable = false,
   dateTime,
   setDateTime,
+  endDateTime,
+  setEndDateTime,
 }: {
   poll: Poll;
   tag?: Tag;
@@ -365,6 +395,8 @@ function InfoTags({
   editable?: boolean;
   dateTime: Date | null;
   setDateTime: (date: Date | null) => void;
+  endDateTime: Date | null;
+  setEndDateTime: (date: Date | null) => void;
 }) {
   const isMobile = useIsMobile();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -374,30 +406,38 @@ function InfoTags({
       id: "date",
       type: InfoTagType.DATE,
       editable: false,
+      icon: editable ? <CalendarPlus /> : <Calendar />,
       text: dateTime
-        ? dateTime.toLocaleDateString("en-US", {
-            day: isMobile ? "2-digit" : "numeric",
-            month: isMobile ? "2-digit" : "long",
-            year: isMobile ? "2-digit" : "numeric",
-          })
+        ? `${editable ? "Starts " : ""}${formatPollDateShort(dateTime, isMobile)}`
         : "No date set.",
-      tooltip: dateTime
-        ? dateTime.toLocaleDateString("en-US", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-            minute: "2-digit",
-            hour: "2-digit",
-            timeZoneName: "short",
-          })
-        : "No date set.",
+      tooltip: dateTime ? formatPollDateFull(dateTime) : "No date set.",
       node:
         editable && !poll.published ? (
           <DatePickerComponent
             selected={dateTime}
             onChange={(date) => setDateTime(date)}
+            clearable
           />
         ) : undefined,
+    };
+
+    const endDateTag: InfoTag = {
+      id: "endDate",
+      type: InfoTagType.END_DATE,
+      editable: false,
+      text: endDateTime
+        ? `Ends ${formatPollDateShort(endDateTime, isMobile)}`
+        : "No end date set.",
+      tooltip: endDateTime
+        ? formatPollDateFull(endDateTime)
+        : "No end date set.",
+      node: editable ? (
+        <DatePickerComponent
+          selected={endDateTime}
+          onChange={(date) => setEndDateTime(date)}
+          clearable
+        />
+      ) : undefined,
     };
 
     const base: InfoTag[] = [
@@ -410,6 +450,7 @@ function InfoTags({
         editable: false,
       },
       dateTag,
+      ...(editable ? [endDateTag] : []),
       ...(totalVotes !== undefined
         ? [
             {
@@ -439,9 +480,11 @@ function InfoTags({
     totalVotes,
     description,
     dateTime,
+    endDateTime,
     isMobile,
     editable,
     setDateTime,
+    setEndDateTime,
   ]);
 
   const [editableTags, setEditableTags] = useState<InfoTag[]>(computedTags);
@@ -631,7 +674,7 @@ function InfoTagDialog({
             if (tag.mobileOnly && !mobile) return null;
             if (!mobile && editable && !tag.editable) return null;
 
-            const icon = InfoTagIconMap[tag.type];
+            const icon = tag.icon ?? InfoTagIconMap[tag.type];
             const styledIcon = isValidElement(icon)
               ? cloneElement(icon as ReactElement<LucideProps>, {
                   size: 26,
@@ -857,6 +900,7 @@ export function PollCardHeader({
   votes,
   editable = false,
   handleTimeChange = () => {},
+  handleEndTimeChange = () => {},
   description = null,
   handleDescriptionChange = () => {},
 }: {
@@ -867,12 +911,14 @@ export function PollCardHeader({
   votes?: Poll["votes"];
   editable?: boolean;
   handleTimeChange?: (time: Date | null) => void;
+  handleEndTimeChange?: (time: Date | null) => void;
   description?: string | null;
   handleDescriptionChange?: (description: string) => void;
 }) {
   const isMobile = useIsMobile();
   const totalVotes = poll.total_votes;
   const dateTime = poll.time ? new Date(poll.time) : null;
+  const endDateTime = poll.end_time ? new Date(poll.end_time) : null;
   const [createTagDialogOpen, setCreateTagDialogOpen] = useState(false);
   const isNew = dateTime
     ? // eslint-disable-next-line react-hooks/purity -- pre-existing, copied from marvel-discord-site
@@ -977,6 +1023,8 @@ export function PollCardHeader({
           editable={editable}
           dateTime={dateTime}
           setDateTime={handleTimeChange}
+          endDateTime={endDateTime}
+          setEndDateTime={handleEndTimeChange}
         />
 
         {poll.published && (

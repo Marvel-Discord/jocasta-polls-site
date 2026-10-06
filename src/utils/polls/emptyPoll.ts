@@ -18,6 +18,7 @@ export function emptyPoll(): Poll {
     active: false,
     choices: [],
     time: null,
+    end_time: null,
     num: null,
     message_id: null,
     crosspost_message_ids: [],
