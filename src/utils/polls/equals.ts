@@ -15,8 +15,8 @@ function toMs(value: Date | string): number {
 function datesEqual(a: Date | null, b: Date | null): boolean {
   if (a == null && b == null) return true;
   if (a == null || b == null) return false;
-  // The Poll type claims `time: Date | null`, but JSON deserialization yields
-  // ISO strings at runtime. Accept both so the comparison doesn't crash.
+  // The Poll type claims `start_time: Date | null`, but JSON deserialization
+  // yields ISO strings at runtime. Accept both so the comparison doesn't crash.
   return toMs(a as Date | string) === toMs(b as Date | string);
 }
 
@@ -35,7 +35,7 @@ export function pollFieldsEqual(a: Poll, b: Poll): boolean {
     (a.image?.trim() ?? "") === (b.image?.trim() ?? "") &&
     a.tag === b.tag &&
     arraysEqual(a.choices, b.choices) &&
-    datesEqual(a.time, b.time) &&
+    datesEqual(a.start_time, b.start_time) &&
     datesEqual(a.end_time, b.end_time) &&
     (a.thread_question ?? "") === (b.thread_question ?? "")
   );
