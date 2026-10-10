@@ -243,8 +243,14 @@ export function parsePollsFromClipboard(
       if (c.length > 0) choices = c;
     }
 
-    // time / end_time (optional ISO string, epoch number, or Date)
-    const time = parseClipboardDate(obj.time, idx, "time", errors);
+    // start_time with legacy `time` alias accepted on input (author
+    // decision 2026-10-06); end_time has no alias.
+    const start_time = parseClipboardDate(
+      obj.start_time ?? obj.time,
+      idx,
+      "start_time",
+      errors,
+    );
     const end_time = parseClipboardDate(obj.end_time, idx, "end_time", errors);
 
     // tag (optional number)
@@ -274,7 +280,7 @@ export function parsePollsFromClipboard(
       question,
       guild_id: guild_id as unknown as Poll["guild_id"],
       choices: choices as unknown as Poll["choices"],
-      time: time,
+      start_time: start_time,
       end_time: end_time,
       tag: tag as unknown as Poll["tag"],
       image: image as unknown as Poll["image"],
@@ -291,7 +297,7 @@ export function parsePollsFromClipboard(
 //   "question": string?,
 //   "guild_id": bigint?,
 //   "choices": string[]?,
-//   "time": Date?, // like "2025-09-20T12:00:00Z"
+//   "start_time": Date?, // like "2025-09-20T12:00:00Z"; legacy "time" alias accepted
 //   "tag": number,
 //   "image": string?,
 //   "description": string?,
