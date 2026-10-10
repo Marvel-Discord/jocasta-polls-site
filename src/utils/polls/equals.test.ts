@@ -12,7 +12,7 @@ function basePoll(overrides: Partial<Poll> = {}): Poll {
     choices: ["Iron Man", "Thor"],
     votes: [],
     total_votes: 0,
-    time: new Date("2026-08-01T12:00:00Z"),
+    start_time: new Date("2026-08-01T12:00:00Z"),
     end_time: null,
     num: null,
     message_id: null,
@@ -72,29 +72,29 @@ describe("pollFieldsEqual", () => {
     expect(pollFieldsEqual(a, b)).toBe(false);
   });
 
-  it("returns true for same date with different references (KEY BUG FIX)", () => {
+  it("start_time: returns true for same date with different references (KEY BUG FIX)", () => {
     const t = "2026-08-01T12:00:00Z";
-    const a = basePoll({ time: new Date(t) });
-    const b = basePoll({ time: new Date(t) });
-    expect(a.time).not.toBe(b.time); // different references
+    const a = basePoll({ start_time: new Date(t) });
+    const b = basePoll({ start_time: new Date(t) });
+    expect(a.start_time).not.toBe(b.start_time); // different references
     expect(pollFieldsEqual(a, b)).toBe(true);
   });
 
-  it("returns false when date value differs", () => {
-    const a = basePoll({ time: new Date("2026-08-01T12:00:00Z") });
-    const b = basePoll({ time: new Date("2026-08-02T12:00:00Z") });
+  it("start_time: returns false when date value differs", () => {
+    const a = basePoll({ start_time: new Date("2026-08-01T12:00:00Z") });
+    const b = basePoll({ start_time: new Date("2026-08-02T12:00:00Z") });
     expect(pollFieldsEqual(a, b)).toBe(false);
   });
 
-  it("returns false when one date is null and the other is not", () => {
-    const a = basePoll({ time: null });
-    const b = basePoll({ time: new Date("2026-08-01T12:00:00Z") });
+  it("start_time: returns false when one date is null and the other is not", () => {
+    const a = basePoll({ start_time: null });
+    const b = basePoll({ start_time: new Date("2026-08-01T12:00:00Z") });
     expect(pollFieldsEqual(a, b)).toBe(false);
   });
 
-  it("returns true when both dates are null", () => {
-    const a = basePoll({ time: null });
-    const b = basePoll({ time: null });
+  it("start_time: returns true when both dates are null", () => {
+    const a = basePoll({ start_time: null });
+    const b = basePoll({ start_time: null });
     expect(pollFieldsEqual(a, b)).toBe(true);
   });
 
@@ -123,22 +123,22 @@ describe("pollFieldsEqual", () => {
     expect(pollFieldsEqual(a, b)).toBe(true);
   });
 
-  it("compares ISO string dates (API reality) to Date objects of the same instant", () => {
+  it("start_time: compares ISO string dates (API reality) to Date objects of the same instant", () => {
     const iso = "2026-08-01T12:00:00Z";
-    const a = basePoll({ time: iso as unknown as Date });
-    const b = basePoll({ time: new Date(iso) });
+    const a = basePoll({ start_time: iso as unknown as Date });
+    const b = basePoll({ start_time: new Date(iso) });
     expect(pollFieldsEqual(a, b)).toBe(true);
   });
 
-  it("compares two ISO string dates of the same instant as equal", () => {
-    const a = basePoll({ time: "2026-08-01T12:00:00Z" as unknown as Date });
-    const b = basePoll({ time: "2026-08-01T12:00:00.000Z" as unknown as Date });
+  it("start_time: compares two ISO string dates of the same instant as equal", () => {
+    const a = basePoll({ start_time: "2026-08-01T12:00:00Z" as unknown as Date });
+    const b = basePoll({ start_time: "2026-08-01T12:00:00.000Z" as unknown as Date });
     expect(pollFieldsEqual(a, b)).toBe(true);
   });
 
-  it("returns false when one date is an ISO string and the other is a different instant", () => {
-    const a = basePoll({ time: "2026-08-01T12:00:00Z" as unknown as Date });
-    const b = basePoll({ time: new Date("2026-08-02T12:00:00Z") });
+  it("start_time: returns false when one date is an ISO string and the other is a different instant", () => {
+    const a = basePoll({ start_time: "2026-08-01T12:00:00Z" as unknown as Date });
+    const b = basePoll({ start_time: new Date("2026-08-02T12:00:00Z") });
     expect(pollFieldsEqual(a, b)).toBe(false);
   });
 
