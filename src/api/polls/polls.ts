@@ -86,7 +86,7 @@ export const getPollById = async (pollId: string): Promise<Poll> => {
  * sending `published`, `guild_id`, `num`, `message_id`,
  * `crosspost_message_ids`, or `fallback` → 400. This pick approach is
  * immune to future schema drift and avoids the time/start_time conflict
- * (the API serializer returns both; we send only `time` and `end_time`).
+ * (we send only start_time and end_time).
  *
  * `end_time` is delta-omitted: when neither the draft nor the original
  * poll has one, the key is left out entirely so a bot-side `/end` that
@@ -101,7 +101,10 @@ export const toUpdatePayload = (poll: Poll, originalPoll?: Poll) => ({
   thread_question: poll.thread_question,
   choices: poll.choices,
   tag: poll.tag,
-  time: poll.time instanceof Date ? poll.time.toISOString() : poll.time,
+  start_time:
+    poll.start_time instanceof Date
+      ? poll.start_time.toISOString()
+      : poll.start_time,
   ...(poll.end_time != null || originalPoll?.end_time != null
     ? {
         end_time:
@@ -126,7 +129,10 @@ export const toCreatePayload = (poll: Omit<Poll, "id">) => ({
   choices: poll.choices,
   tag: poll.tag,
   guild_id: poll.guild_id,
-  time: poll.time instanceof Date ? poll.time.toISOString() : poll.time,
+  start_time:
+    poll.start_time instanceof Date
+      ? poll.start_time.toISOString()
+      : poll.start_time,
   end_time:
     poll.end_time instanceof Date ? poll.end_time.toISOString() : poll.end_time,
   image: poll.image,

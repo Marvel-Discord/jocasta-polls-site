@@ -37,15 +37,15 @@ export function serializeBigIntFields<T>(obj: T): T {
  * Serializes polls for API transmission by converting BigInt fields to strings
  * and Date objects to ISO strings for JSON compatibility
  */
-export const serializePollsForAPI = <T extends { time?: Date | null }>(
+export const serializePollsForAPI = <T extends { start_time?: Date | null }>(
   polls: T[]
 ): T[] => {
   return polls.map((poll) => ({
     ...serializeBigIntFields([poll])[0],
-    time:
-      poll.time && typeof poll.time === "object"
-        ? poll.time.toISOString()
-        : poll.time,
+    start_time:
+      poll.start_time && typeof poll.start_time === "object"
+        ? poll.start_time.toISOString()
+        : poll.start_time,
   }));
 };
 

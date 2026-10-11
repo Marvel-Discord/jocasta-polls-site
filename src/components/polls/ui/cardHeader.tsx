@@ -920,7 +920,7 @@ export function PollCardHeader({
 }) {
   const isMobile = useIsMobile();
   const totalVotes = poll.total_votes;
-  const dateTime = poll.time ? new Date(poll.time) : null;
+  const dateTime = poll.start_time ? new Date(poll.start_time) : null;
   const endDateTime = poll.end_time ? new Date(poll.end_time) : null;
   const [createTagDialogOpen, setCreateTagDialogOpen] = useState(false);
   const isNew = dateTime

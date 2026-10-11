@@ -105,7 +105,8 @@ export function PollList({
                         if (p.image !== undefined)
                           created.image = p.image ?? "";
                         if (p.choices) created.choices = p.choices;
-                        if (p.time !== undefined) created.time = p.time ?? null;
+                        if (p.start_time !== undefined)
+                          created.start_time = p.start_time ?? null;
                         if (p.end_time !== undefined)
                           created.end_time = p.end_time ?? null;
                         if (p.tag !== undefined) created.tag = p.tag as number;

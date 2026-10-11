@@ -69,13 +69,16 @@ export function validatePoll(
   // Mirror the API's DB constraints:
   //   end_time IS NULL OR start_time IS NOT NULL
   //   start_time < end_time
-  // `time`/`end_time` arrive as Date or ISO string at runtime.
+  // `start_time`/`end_time` arrive as Date or ISO string at runtime.
   if (poll.end_time != null) {
     const endTime = new Date(poll.end_time).getTime();
     if (!Number.isFinite(endTime)) {
       errors.push("End time is invalid");
     } else {
-      const startTime = poll.time != null ? new Date(poll.time).getTime() : null;
+      const startTime =
+        poll.start_time != null
+          ? new Date(poll.start_time).getTime()
+          : null;
       if (startTime === null || !Number.isFinite(startTime)) {
         errors.push("End time requires a start date");
       } else if (endTime <= startTime) {

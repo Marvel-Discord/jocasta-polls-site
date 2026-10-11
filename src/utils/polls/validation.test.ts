@@ -12,7 +12,7 @@ function basePoll(overrides: Partial<Poll> = {}): Poll {
     choices: ["Iron Man", "Thor"],
     votes: [],
     total_votes: 0,
-    time: new Date("2026-08-01T12:00:00Z"),
+    start_time: new Date("2026-08-01T12:00:00Z"),
     end_time: null,
     num: null,
     message_id: null,
@@ -36,15 +36,15 @@ describe("validatePoll end_time", () => {
 
   it("valid with start and later end", () => {
     const poll = basePoll({
-      time: new Date("2026-08-01T12:00:00Z"),
+      start_time: new Date("2026-08-01T12:00:00Z"),
       end_time: new Date("2026-08-02T12:00:00Z"),
     });
     expect(validatePoll(poll).isValid).toBe(true);
   });
 
-  it("invalid when end_time is set but time is null", () => {
+  it("invalid when end_time is set but start_time is null", () => {
     const poll = basePoll({
-      time: null,
+      start_time: null,
       end_time: new Date("2026-08-02T12:00:00Z"),
     });
     const result = validatePoll(poll);
@@ -52,9 +52,9 @@ describe("validatePoll end_time", () => {
     expect(result.errors.get(poll)).toContain("End time requires a start date");
   });
 
-  it("invalid when end_time is before time", () => {
+  it("invalid when end_time is before start_time", () => {
     const poll = basePoll({
-      time: new Date("2026-08-02T12:00:00Z"),
+      start_time: new Date("2026-08-02T12:00:00Z"),
       end_time: new Date("2026-08-01T12:00:00Z"),
     });
     const result = validatePoll(poll);
@@ -64,9 +64,9 @@ describe("validatePoll end_time", () => {
     );
   });
 
-  it("invalid when end_time equals time (API check is strict start < end)", () => {
+  it("invalid when end_time equals start_time (API check is strict start < end)", () => {
     const t = new Date("2026-08-01T12:00:00Z");
-    const poll = basePoll({ time: t, end_time: new Date(t) });
+    const poll = basePoll({ start_time: t, end_time: new Date(t) });
     const result = validatePoll(poll);
     expect(result.isValid).toBe(false);
     expect(result.errors.get(poll)).toContain(
@@ -76,7 +76,7 @@ describe("validatePoll end_time", () => {
 
   it("accepts ISO string dates from API deserialization", () => {
     const poll = basePoll({
-      time: "2026-08-01T12:00:00Z" as unknown as Date,
+      start_time: "2026-08-01T12:00:00Z" as unknown as Date,
       end_time: "2026-08-02T12:00:00Z" as unknown as Date,
     });
     expect(validatePoll(poll).isValid).toBe(true);
@@ -84,7 +84,7 @@ describe("validatePoll end_time", () => {
 
   it("invalid when end_time is an unparseable string (NaN guard)", () => {
     const poll = basePoll({
-      time: new Date("2026-08-01T12:00:00Z"),
+      start_time: new Date("2026-08-01T12:00:00Z"),
       end_time: "not a date" as unknown as Date,
     });
     const result = validatePoll(poll);
@@ -94,7 +94,7 @@ describe("validatePoll end_time", () => {
 
   it("end time with an unparseable start reports the start-date error", () => {
     const poll = basePoll({
-      time: "garbage" as unknown as Date,
+      start_time: "garbage" as unknown as Date,
       end_time: new Date("2026-08-02T12:00:00Z"),
     });
     const result = validatePoll(poll);

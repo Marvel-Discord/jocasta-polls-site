@@ -350,8 +350,8 @@ export function PollCard({
   );
 
   const handleTimeChange = useCallback(
-    (newDateTime: Poll["time"]) => {
-      setField("time", newDateTime);
+    (newDateTime: Poll["start_time"]) => {
+      setField("start_time", newDateTime);
     },
     [setField]
   );
@@ -403,7 +403,7 @@ export function PollCard({
         poll={{
           ...poll,
           total_votes: totalVotes,
-          time: draft.time,
+          start_time: draft.start_time,
           end_time: draft.end_time,
         }}
         tag={editable ? currentTag : tag}

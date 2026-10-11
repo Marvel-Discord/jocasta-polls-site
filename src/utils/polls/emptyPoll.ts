@@ -17,7 +17,7 @@ export function emptyPoll(): Poll {
     published: false,
     active: false,
     choices: [],
-    time: null,
+    start_time: null,
     end_time: null,
     num: null,
     message_id: null,

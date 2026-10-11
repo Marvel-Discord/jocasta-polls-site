@@ -12,7 +12,7 @@ function basePoll(overrides: Partial<Poll> = {}): Poll {
     choices: ["Iron Man", "Thor"],
     votes: [],
     total_votes: 0,
-    time: new Date("2026-08-01T12:00:00Z"),
+    start_time: new Date("2026-08-01T12:00:00Z"),
     end_time: null,
     num: null,
     message_id: null,
@@ -30,6 +30,12 @@ function basePoll(overrides: Partial<Poll> = {}): Poll {
 }
 
 describe("toUpdatePayload", () => {
+  it("serializes a Date start_time to an ISO string", () => {
+    expect(toUpdatePayload(basePoll()).start_time).toBe(
+      "2026-08-01T12:00:00.000Z"
+    );
+  });
+
   it("serializes a Date end_time to an ISO string", () => {
     const poll = basePoll({
       end_time: new Date("2026-08-02T12:00:00Z"),
@@ -82,11 +88,12 @@ describe("toUpdatePayload", () => {
 });
 
 describe("toCreatePayload", () => {
-  it("serializes a Date end_time to an ISO string", () => {
+  it("serializes Date start_time and end_time to ISO strings", () => {
     const poll = basePoll({
       end_time: new Date("2026-08-02T12:00:00Z"),
     });
-    const { end_time, ...rest } = toCreatePayload(poll);
+    const { start_time, end_time, ...rest } = toCreatePayload(poll);
+    expect(start_time).toBe("2026-08-01T12:00:00.000Z");
     expect(end_time).toBe("2026-08-02T12:00:00.000Z");
     expect(rest).not.toHaveProperty("id");
   });

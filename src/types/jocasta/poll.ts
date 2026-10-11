@@ -7,7 +7,7 @@ export interface Poll {
   choices: string[];
   votes?: number[] | null;
   total_votes: number;
-  time: Date | null;
+  start_time: Date | null;
   end_time: Date | null;
   num: number | null;
   message_id: bigint | null;
