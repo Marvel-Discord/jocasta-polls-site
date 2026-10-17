@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
+import config from "@/app/config/config";
 import { parsePollsFromClipboard } from "@/components/polls/main/ImportFromClipboardButton";
 
 function baseItem(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     question: "Best hero?",
-    guild_id: 1,
+    guild_id: Number(config.guildId),
     choices: ["Iron Man", "Thor"],
     tag: 5,
     ...overrides,
@@ -65,5 +66,23 @@ describe("parsePollsFromClipboard time alias", () => {
     const { polls, errors } = parseItems([baseItem()]);
     expect(errors).toEqual([]);
     expect(polls[0].start_time).toBeUndefined();
+  });
+
+  it("foreign guild_id is rejected with an error and stripped", () => {
+    const { polls, errors } = parseItems([
+      baseItem({ guild_id: "999999999999999999" }),
+    ]);
+    expect(errors).toEqual([
+      "item 1: guild_id 999999999999999999 does not match this guild - using this guild instead",
+    ]);
+    expect(polls[0].guild_id).toBeUndefined();
+  });
+
+  it("this guild's id passes through unchanged", () => {
+    const { polls, errors } = parseItems([
+      baseItem({ guild_id: Number(config.guildId) }),
+    ]);
+    expect(errors).toEqual([]);
+    expect(polls[0].guild_id).toBe(BigInt(config.guildId));
   });
 });

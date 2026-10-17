@@ -12,6 +12,7 @@ import {
 import { EditState } from "@/types/states";
 import { emptyPoll, validatePolls, type ValidationResult } from "@/utils/polls";
 import { createPolls, updatePolls, deletePolls } from "@/api/polls/polls";
+import { apiErrorMessage } from "@/api/errors";
 import { useTagContext } from "@/contexts/TagContext";
 import { createLogger } from "@/utils/logger";
 
@@ -318,8 +319,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       logger.error("Failed to save changes:", error);
       return {
         success: false,
-        message:
-          error instanceof Error ? error.message : "Failed to save changes",
+        message: apiErrorMessage(error, "Failed to save changes"),
       };
     } finally {
       setIsSaving(false);

@@ -3,6 +3,7 @@ import { Dialog, Button, Flex } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Import } from "lucide-react";
 import type { Poll } from "@/types/jocasta";
+import config from "@/app/config/config";
 import { useTagContext } from "@/contexts/TagContext";
 import { toast } from "sonner";
 import { createLogger } from "@/utils";
@@ -207,7 +208,9 @@ export function parsePollsFromClipboard(
           ? obj.question
           : String(obj.question);
 
-    // guild_id (optional bigint or number/string)
+    // guild_id (optional bigint or number/string). Guarded against
+    // foreign guilds: a mismatched id is stripped with an error so the
+    // submission uses this site's guild instead of a guaranteed 403.
     let guild_id: bigint | undefined = undefined;
     if (obj.guild_id != null) {
       if (typeof obj.guild_id === "bigint") guild_id = obj.guild_id as bigint;
@@ -224,6 +227,12 @@ export function parsePollsFromClipboard(
         }
       } else {
         errors.push(`item ${idx + 1}: guild_id invalid`);
+      }
+      if (guild_id != null && guild_id !== BigInt(config.guildId)) {
+        errors.push(
+          `item ${idx + 1}: guild_id ${guild_id} does not match this guild - using this guild instead`,
+        );
+        guild_id = undefined;
       }
     }
 
