@@ -209,9 +209,10 @@ export function parsePollsFromClipboard(
           : String(obj.question);
 
     // guild_id (optional bigint or number/string). Guarded against
-    // foreign guilds: a mismatched id is stripped with an error so the
-    // submission uses this site's guild instead of a guaranteed 403.
+    // foreign guilds: a mismatched id blocks the item entirely (author
+    // review, PR #16) — the item never reaches the parsed list.
     let guild_id: bigint | undefined = undefined;
+    let guildBlocked = false;
     if (obj.guild_id != null) {
       if (typeof obj.guild_id === "bigint") guild_id = obj.guild_id as bigint;
       else if (typeof obj.guild_id === "number")
@@ -230,9 +231,9 @@ export function parsePollsFromClipboard(
       }
       if (guild_id != null && guild_id !== BigInt(config.guildId)) {
         errors.push(
-          `item ${idx + 1}: guild_id ${guild_id} does not match this guild - using this guild instead`,
+          `item ${idx + 1}: guild_id ${guild_id} does not match this guild`,
         );
-        guild_id = undefined;
+        guildBlocked = true;
       }
     }
 
@@ -284,7 +285,9 @@ export function parsePollsFromClipboard(
     const thread_question =
       obj.thread_question != null ? String(obj.thread_question) : undefined;
 
-    // accept item even if some fields are missing; only skip if it's not an object
+    // accept item even if some fields are missing; only skip if it's not
+    // an object or its guild_id belongs to a foreign guild
+    if (guildBlocked) return;
     const item: Partial<Poll> = {
       question,
       guild_id: guild_id as unknown as Poll["guild_id"],

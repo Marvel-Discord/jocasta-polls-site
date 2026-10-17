@@ -68,14 +68,26 @@ describe("parsePollsFromClipboard time alias", () => {
     expect(polls[0].start_time).toBeUndefined();
   });
 
-  it("foreign guild_id is rejected with an error and stripped", () => {
+  it("foreign guild_id blocks the item entirely with an error", () => {
     const { polls, errors } = parseItems([
       baseItem({ guild_id: "999999999999999999" }),
     ]);
     expect(errors).toEqual([
-      "item 1: guild_id 999999999999999999 does not match this guild - using this guild instead",
+      "item 1: guild_id 999999999999999999 does not match this guild",
     ]);
-    expect(polls[0].guild_id).toBeUndefined();
+    expect(polls).toEqual([]);
+  });
+
+  it("a foreign-guild item does not block its siblings", () => {
+    const { polls, errors } = parseItems([
+      baseItem({ guild_id: "999999999999999999" }),
+      baseItem({ question: "Sibling" }),
+    ]);
+    expect(errors).toEqual([
+      "item 1: guild_id 999999999999999999 does not match this guild",
+    ]);
+    expect(polls).toHaveLength(1);
+    expect(polls[0].question).toBe("Sibling");
   });
 
   it("this guild's id passes through unchanged", () => {
