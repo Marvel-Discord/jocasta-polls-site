@@ -200,6 +200,12 @@ export function parsePollsFromClipboard(
     }
     const obj = c as Record<string, unknown>;
 
+    // Set by any field validation that disqualifies the whole item (a
+    // foreign guild_id today; other fields may earn the same treatment
+    // later). Blocked items get an error entry and never reach the
+    // parsed list — their siblings import normally.
+    let blocked = false;
+
     // question (optional string)
     const question =
       obj.question == null
@@ -208,11 +214,9 @@ export function parsePollsFromClipboard(
           ? obj.question
           : String(obj.question);
 
-    // guild_id (optional bigint or number/string). Guarded against
-    // foreign guilds: a mismatched id blocks the item entirely (author
-    // review, PR #16) — the item never reaches the parsed list.
+    // guild_id (optional bigint or number/string). A foreign guild id
+    // blocks the item outright — see `blocked` below.
     let guild_id: bigint | undefined = undefined;
-    let guildBlocked = false;
     if (obj.guild_id != null) {
       if (typeof obj.guild_id === "bigint") guild_id = obj.guild_id as bigint;
       else if (typeof obj.guild_id === "number")
@@ -233,7 +237,7 @@ export function parsePollsFromClipboard(
         errors.push(
           `item ${idx + 1}: guild_id ${guild_id} does not match this guild`,
         );
-        guildBlocked = true;
+        blocked = true;
       }
     }
 
@@ -286,8 +290,8 @@ export function parsePollsFromClipboard(
       obj.thread_question != null ? String(obj.thread_question) : undefined;
 
     // accept item even if some fields are missing; only skip if it's not
-    // an object or its guild_id belongs to a foreign guild
-    if (guildBlocked) return;
+    // an object or a field validation blocked it
+    if (blocked) return;
     const item: Partial<Poll> = {
       question,
       guild_id: guild_id as unknown as Poll["guild_id"],
